@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+
+  php:
+    build:
+      context: docker/php
+    user: ${PHP_USER_ID}
+    ports:
+      - ${PORT_PHP}:80
+    volumes:
+      # Use :cached flag to speed up cache: https://github.com/docker/for-mac/issues/1592
+      - ${PROJECT_PATH}:/var/www/html:cached
+    networks:
+      default:
+        aliases:
+          - ${PROJECT_DOMAIN}
+    environment:
+      PROJECT_DOMAIN: ${PROJECT_DOMAIN}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+  mysql:
+    image: mysql:8.0.19
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - ${PORT_MYSQL}:3306
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+  elasticsearch:
+    image: elasticsearch:7.9.3
+    ports:
+      - ${PORT_ELASTICSEARCH}:9200
+    volumes:
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: 'false'

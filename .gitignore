@@ -1,0 +1,12 @@
+# Project source code and data of services
+/project
+/data
+
+# IDEs
+/.idea
+*.iml
+/.vscode
+*~
+
+# System files
+.DS_Store
